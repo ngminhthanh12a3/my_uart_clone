@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="tb_top_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="tb_top" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="99,965 ps"></ZoomStartTime>
+      <ZoomEndTime time="100,007 ps"></ZoomEndTime>
+      <Cursor1Time time="99,978 ps"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="276"></NameColumnWidth>
+      <ValueColumnWidth column_width="116"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="15" />
+   <wvobject type="logic" fp_name="/tb_top/tb_clk">
+      <obj_property name="ElementShortName">tb_clk</obj_property>
+      <obj_property name="ObjectShortName">tb_clk</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_top/tb_rst">
+      <obj_property name="ElementShortName">tb_rst</obj_property>
+      <obj_property name="ObjectShortName">tb_rst</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_top/dut/phase_stage">
+      <obj_property name="ElementShortName">phase_stage[2:0]</obj_property>
+      <obj_property name="ObjectShortName">phase_stage[2:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_top/dut/phase_state_cnt">
+      <obj_property name="ElementShortName">phase_state_cnt[1:0]</obj_property>
+      <obj_property name="ObjectShortName">phase_state_cnt[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_top/dut/phase_cnt">
+      <obj_property name="ElementShortName">phase_cnt[3:0]</obj_property>
+      <obj_property name="ObjectShortName">phase_cnt[3:0]</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_top/dut/phase_is_end">
+      <obj_property name="ElementShortName">phase_is_end[3:0]</obj_property>
+      <obj_property name="ObjectShortName">phase_is_end[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_top/dut/addr_i">
+      <obj_property name="ElementShortName">addr_i[7:0]</obj_property>
+      <obj_property name="ObjectShortName">addr_i[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_top/dut/data_i">
+      <obj_property name="ElementShortName">data_i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">data_i[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_top/dut/we_i">
+      <obj_property name="ElementShortName">we_i</obj_property>
+      <obj_property name="ObjectShortName">we_i</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_top/dut/stb_i">
+      <obj_property name="ElementShortName">stb_i</obj_property>
+      <obj_property name="ObjectShortName">stb_i</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_top/dut/ack_o">
+      <obj_property name="ElementShortName">ack_o</obj_property>
+      <obj_property name="ObjectShortName">ack_o</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_top/dut/data_o">
+      <obj_property name="ElementShortName">data_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">data_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_top/dut/default_conf_reg">
+      <obj_property name="ElementShortName">default_conf_reg[19:0]</obj_property>
+      <obj_property name="ObjectShortName">default_conf_reg[19:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_top/dut/is_default_config_ok">
+      <obj_property name="ElementShortName">is_default_config_ok</obj_property>
+      <obj_property name="ObjectShortName">is_default_config_ok</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_top/dut/led">
+      <obj_property name="ElementShortName">led[0:0]</obj_property>
+      <obj_property name="ObjectShortName">led[0:0]</obj_property>
+   </wvobject>
+</wave_config>

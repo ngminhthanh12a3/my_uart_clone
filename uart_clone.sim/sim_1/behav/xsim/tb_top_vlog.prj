@@ -1,0 +1,13 @@
+# compile verilog/system verilog design source files
+verilog xil_defaultlib  --include "../../../../../../FPGAXilinx/2025.2/data/rsb/busdef" --include "../../../../uart_clone.ip_user_files/ipstatic" \
+"../../../../uart_clone.srcs/sources_1/new/top.v" \
+"../../../../uart_clone.srcs/sources_1/imports/rtl/uart.v" \
+"../../../../uart_clone.srcs/sources_1/imports/rtl/uart_regs.v" \
+"../../../../uart_clone.srcs/sources_1/imports/rtl/uart_wb.v" \
+"../../../../uart_clone.srcs/sim_1/new/tb_top.v" \
+
+# compile glbl module
+verilog xil_defaultlib "glbl.v"
+
+# Do not sort compile order
+nosort
