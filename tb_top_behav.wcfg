@@ -11,15 +11,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="99,965 ps"></ZoomStartTime>
-      <ZoomEndTime time="100,007 ps"></ZoomEndTime>
-      <Cursor1Time time="99,978 ps"></Cursor1Time>
+      <ZoomStartTime time="99,955 ps"></ZoomStartTime>
+      <ZoomEndTime time="100,010 ps"></ZoomEndTime>
+      <Cursor1Time time="100,000 ps"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="276"></NameColumnWidth>
-      <ValueColumnWidth column_width="116"></ValueColumnWidth>
+      <ValueColumnWidth column_width="112"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="15" />
+   <WVObjectSize size="16" />
    <wvobject type="logic" fp_name="/tb_top/tb_clk">
       <obj_property name="ElementShortName">tb_clk</obj_property>
       <obj_property name="ObjectShortName">tb_clk</obj_property>
@@ -39,7 +39,6 @@
    <wvobject type="array" fp_name="/tb_top/dut/phase_cnt">
       <obj_property name="ElementShortName">phase_cnt[3:0]</obj_property>
       <obj_property name="ObjectShortName">phase_cnt[3:0]</obj_property>
-      <obj_property name="isExpanded"></obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/tb_top/dut/phase_is_end">
       <obj_property name="ElementShortName">phase_is_end[3:0]</obj_property>
@@ -80,5 +79,9 @@
    <wvobject type="array" fp_name="/tb_top/dut/led">
       <obj_property name="ElementShortName">led[0:0]</obj_property>
       <obj_property name="ObjectShortName">led[0:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_top/dut/uart_rx_status">
+      <obj_property name="ElementShortName">uart_rx_status</obj_property>
+      <obj_property name="ObjectShortName">uart_rx_status</obj_property>
    </wvobject>
 </wave_config>
