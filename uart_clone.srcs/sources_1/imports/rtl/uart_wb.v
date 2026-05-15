@@ -63,7 +63,8 @@ module uart_wb
     input [31:0]        data_i,
     input               we_i,
     input               stb_i,
-    output              ack_o
+    output              ack_o,
+    output              uart_tx_busy_o
 );
 
 //-----------------------------------------------------------------
@@ -169,5 +170,5 @@ else
 // Assignments
 //-----------------------------------------------------------------
 assign intr_o = intr_q;
-
+assign uart_tx_busy_o = uart_tx_busy_w;
 endmodule

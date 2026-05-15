@@ -1,12 +1,12 @@
-`timescale 1ps / 1ps
+`timescale 1ns / 1ps
 `include "../imports/rtl/uart_regs_defs.v"
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
 // Engineer: 
 // 
-// Create Date: 05/13/2026 11:18:30 AM
+// Create Date: 05/15/2026 03:18:08 AM
 // Design Name: 
-// Module Name: top
+// Module Name: top_cbuff
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -21,20 +21,32 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module top(
+module uart_loop_cbuff(
     CLK100MHZ,
     btn,
-    led,
-    uart_rxd_out,
-    uart_txd_in,
-    sw
+    sw,
+    // led,
+    is_default_config_ok_o,
+    uart_pin_ack_o,
+    uart_pin_stb_i,
+    uart_pin_we_i,
+    uart_pin_addr_i,
+    uart_pin_data_i,
+    uart_pin_data_o
     );
-    input CLK100MHZ, uart_txd_in;
+    input CLK100MHZ;
     input [0:0] btn;
     input [3:0] sw;
+    // output [1:0] led;
 
-    output uart_rxd_out;
-    output [1:0] led;
+    //
+    output is_default_config_ok_o;
+    input [31:0] uart_pin_data_o;
+    input uart_pin_ack_o;
+    output uart_pin_stb_i;
+    output uart_pin_we_i;
+    output [7:0] uart_pin_addr_i;
+    output [31:0] uart_pin_data_i;
 
     wire clk_i = CLK100MHZ, rst_i = btn[0];
     
@@ -57,7 +69,7 @@ module top(
             phase_state_cnt <= 1'b0;
         end
         else if (phase_stage == PHASE_STAGE_END) begin
-            if (phase_state_cnt == PHASE_STATE_BIT_NUM_READ_UART_DATA)
+            if (phase_state_cnt == PHASE_STATE_BIT_NUM_READ_UART_DATA)//(PHASE_STATE_BIT_NUM_GET_CONFIG_STATUS + 1))
                 phase_state_cnt <= PHASE_STATE_BIT_NUM_GET_UART_STATUS;
             else
                 phase_state_cnt <= phase_state_cnt + 1'b1;
@@ -102,8 +114,8 @@ module top(
     reg [7:0] addr_i;
     reg [31:0] data_i;
     reg [19:0] default_conf_reg;
-    wire ack_o;
-    wire [31:0] data_o;
+    wire ack_o = uart_pin_ack_o;
+    wire [31:0] data_o = uart_pin_data_o;
     reg uart_rx_status;
 
     wire [19:0] DEFAULT_UART_CFG = {4'he,8'b0, {8'hd0 + sw[3:0]}}; // stop bit = 1, divisor = 0xd0 + sw[3:0]
@@ -175,30 +187,75 @@ module top(
             end
         end
     end
-    
-    // reg uart_rx_status_toggle;
-    // always @(uart_rx_status) begin
-    //     uart_rx_status_toggle <= ~uart_rx_status_toggle;
-    // end
 
     wire is_default_config_ok = default_conf_reg == DEFAULT_UART_CFG;
-    assign led = {uart_rx_status, is_default_config_ok};
     
-    uart_wb #(
-        .UART_DIVISOR_W(10),
-        .UART_DIVISOR_DEFAULT(1),
-        .UART_STOP_BITS_DEFAULT(0)
-    ) uart_inst (
-        .clk_i(clk_i), // Connect clock
-        .rst_i(rst_i), // Connect reset
-        .intr_o(), // Connect interrupt output
-        .tx_o(uart_rxd_out), // Connect UART TX output
-        .rx_i(uart_txd_in), // Connect UART RX input
-        .addr_i(addr_i), // Connect Wishbone address input
-        .data_o(data_o), // Connect Wishbone data output
-        .data_i(data_i), // Connect Wishbone data input
-        .we_i(we_i), // Connect Wishbone write enable
-        .stb_i(stb_i), // Connect Wishbone strobe
-        .ack_o(ack_o)  // Connect Wishbone acknowledge output
-    );
+    assign is_default_config_ok_o = is_default_config_ok;
+    assign uart_pin_stb_i = stb_i;
+    assign uart_pin_we_i = we_i;
+    assign uart_pin_addr_i = addr_i;
+    assign uart_pin_data_i = data_i;
+
+    // assign led = {uart_rx_status, is_default_config_ok_o};
+
+    // assign uart_pin_ack_o = ack_o;
+    // assign uart_pin_data_o = data_o;
+
+    // uart_wb #(
+    //     .UART_DIVISOR_W(10),
+    //     .UART_DIVISOR_DEFAULT(1),
+    //     .UART_STOP_BITS_DEFAULT(0)
+    // ) uart_inst (
+    //     .clk_i(clk_i), // Connect clock
+    //     .rst_i(rst_i), // Connect reset
+    //     .intr_o(), // Connect interrupt output
+    //     .tx_o(uart_rxd_out), // Connect UART TX output
+    //     .rx_i(uart_txd_in), // Connect UART RX input
+    //     .addr_i(addr_i), // Connect Wishbone address input
+    //     .data_o(data_o), // Connect Wishbone data output
+    //     .data_i(data_i), // Connect Wishbone data input
+    //     .we_i(we_i), // Connect Wishbone write enable
+    //     .stb_i(stb_i), // Connect Wishbone strobe
+    //     .ack_o(ack_o)  // Connect Wishbone acknowledge output
+    // );
+    
+    // reg [7:0] r_ff_wdata_i;
+    // reg r_ff_wr_en_i, r_ff_rd_en_i;
+    // wire r_ff_full_o, r_ff_empty_o;
+    // wire [7:0] r_ff_rdata_o;
+    
+    // fifo #(
+    //     .WIDTH(8),
+    //     .DEPTH(20)
+    // ) r_fifo (
+    //                 .clk_i(clk_i),
+    //                 .rst_n_i(~rst_i),
+    //                 .wdata_i(r_ff_wdata_i),
+    //                 .wr_en_i(r_ff_wr_en_i),
+    //                 .full_o(r_ff_full_o),
+    //                 .rdata_o(r_ff_rdata_o),
+    //                 .rd_en_i(r_ff_rd_en_i),
+    //                 .empty_o(r_ff_empty_o)
+    // );
+
+    // // read UART RX status
+    // always @(posedge clk_i or posedge rst_i) begin
+    //     if (rst_i) begin
+    //         // r_ff_wdata_i <= 8'b0;
+    //         // r_ff_wr_en_i <= 1'b0;
+    //         // r_ff_rd_en_i <= 1'b0;
+    //     end
+    //     else if (is_default_config_ok && is_handle_read_uart) begin
+            
+    //     end
+    // end
+
+    // // write data UART -> FIFO
+    
+
+    // always @(posedge clk_i or posedge rst_i) begin
+    //     if (rst_i) begin
+            
+    //     end
+    // end
 endmodule
