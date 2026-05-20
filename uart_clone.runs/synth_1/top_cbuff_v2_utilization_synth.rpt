@@ -1,7 +1,7 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
 ---------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2025.2 (lin64) Build 6299465 Fri Nov 14 12:34:56 MST 2025
-| Date         : Fri May 15 22:34:37 2026
+| Date         : Wed May 20 10:50:47 2026
 | Host         : thanh-AORUS running 64-bit Ubuntu 24.04.4 LTS
 | Command      : report_utilization -file top_cbuff_v2_utilization_synth.rpt -pb top_cbuff_v2_utilization_synth.pb
 | Design       : top_cbuff_v2
@@ -31,15 +31,15 @@ Table of Contents
 +-------------------------+------+-------+------------+-----------+-------+
 |        Site Type        | Used | Fixed | Prohibited | Available | Util% |
 +-------------------------+------+-------+------------+-----------+-------+
-| Slice LUTs*             |  117 |     0 |          0 |     63400 |  0.18 |
-|   LUT as Logic          |  117 |     0 |          0 |     63400 |  0.18 |
+| Slice LUTs*             |  175 |     0 |          0 |     63400 |  0.28 |
+|   LUT as Logic          |  175 |     0 |          0 |     63400 |  0.28 |
 |   LUT as Memory         |    0 |     0 |          0 |     19000 |  0.00 |
-| Slice Registers         |  146 |     0 |          0 |    126800 |  0.12 |
-|   Register as Flip Flop |  146 |     0 |          0 |    126800 |  0.12 |
+| Slice Registers         |  288 |     0 |          0 |    126800 |  0.23 |
+|   Register as Flip Flop |  288 |     0 |          0 |    126800 |  0.23 |
 |   Register as Latch     |    0 |     0 |          0 |    126800 |  0.00 |
-| F7 Muxes                |    0 |     0 |          0 |     31700 |  0.00 |
-| F8 Muxes                |    0 |     0 |          0 |     15850 |  0.00 |
-| Unique Control Sets     |   14 |       |          0 |     15850 |  0.09 |
+| F7 Muxes                |   16 |     0 |          0 |     31700 |  0.05 |
+| F8 Muxes                |    8 |     0 |          0 |     15850 |  0.05 |
+| Unique Control Sets     |   32 |       |          0 |     15850 |  0.20 |
 +-------------------------+------+-------+------------+-----------+-------+
 * Warning! The Final LUT count, after physical optimizations and full implementation, is typically lower. Run opt_design after synthesis, if not already completed, for a more realistic count.
 Warning! LUT value is adjusted to account for LUT combining.
@@ -60,9 +60,9 @@ Warning! For any ECO changes, please run place_design if there are unplaced inst
 | 0     |            _ |       Reset |            - |
 | 0     |          Yes |           - |            - |
 | 6     |          Yes |           - |          Set |
-| 132   |          Yes |           - |        Reset |
+| 146   |          Yes |           - |        Reset |
 | 0     |          Yes |         Set |            - |
-| 8     |          Yes |       Reset |            - |
+| 136   |          Yes |       Reset |            - |
 +-------+--------------+-------------+--------------+
 
 
@@ -151,17 +151,19 @@ Warning! For any ECO changes, please run place_design if there are unplaced inst
 +----------+------+---------------------+
 | Ref Name | Used | Functional Category |
 +----------+------+---------------------+
-| FDCE     |  132 |        Flop & Latch |
-| LUT6     |   42 |                 LUT |
-| LUT5     |   33 |                 LUT |
-| LUT3     |   28 |                 LUT |
-| LUT2     |   28 |                 LUT |
-| LUT4     |   22 |                 LUT |
-| FDRE     |    8 |        Flop & Latch |
+| FDCE     |  146 |        Flop & Latch |
+| FDRE     |  136 |        Flop & Latch |
+| LUT6     |   95 |                 LUT |
+| LUT3     |   32 |                 LUT |
+| LUT5     |   30 |                 LUT |
+| LUT2     |   30 |                 LUT |
+| LUT4     |   26 |                 LUT |
+| MUXF7    |   16 |               MuxFx |
+| MUXF8    |    8 |               MuxFx |
 | IBUF     |    7 |                  IO |
 | FDPE     |    6 |        Flop & Latch |
 | OBUF     |    5 |                  IO |
-| LUT1     |    3 |                 LUT |
+| LUT1     |    4 |                 LUT |
 | CARRY4   |    2 |          CarryLogic |
 | BUFG     |    1 |               Clock |
 +----------+------+---------------------+
