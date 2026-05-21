@@ -69,6 +69,7 @@ module controller # (
             cmd <= 0;
             data_len_o <= 0;
             error_o <= 0;
+            finish_o <= 0;
         end
         // else if (finish_o || error_o) begin
         //     data_in_cnt <= 0;

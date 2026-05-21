@@ -1,7 +1,7 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
 ---------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2025.2 (lin64) Build 6299465 Fri Nov 14 12:34:56 MST 2025
-| Date         : Thu May 21 18:21:47 2026
+| Date         : Thu May 21 21:13:20 2026
 | Host         : thanh-AORUS running 64-bit Ubuntu 24.04.4 LTS
 | Command      : report_utilization -file top_cbuff_v2_utilization_synth.rpt -pb top_cbuff_v2_utilization_synth.pb
 | Design       : top_cbuff_v2
@@ -60,9 +60,9 @@ Warning! For any ECO changes, please run place_design if there are unplaced inst
 | 0     |            _ |       Reset |            - |
 | 0     |          Yes |           - |            - |
 | 7     |          Yes |           - |          Set |
-| 197   |          Yes |           - |        Reset |
+| 198   |          Yes |           - |        Reset |
 | 0     |          Yes |         Set |            - |
-| 273   |          Yes |       Reset |            - |
+| 272   |          Yes |       Reset |            - |
 +-------+--------------+-------------+--------------+
 
 
@@ -151,10 +151,10 @@ Warning! For any ECO changes, please run place_design if there are unplaced inst
 +----------+------+---------------------+
 | Ref Name | Used | Functional Category |
 +----------+------+---------------------+
-| FDRE     |  273 |        Flop & Latch |
-| FDCE     |  197 |        Flop & Latch |
+| FDRE     |  272 |        Flop & Latch |
+| FDCE     |  198 |        Flop & Latch |
 | LUT6     |  158 |                 LUT |
-| LUT2     |   56 |                 LUT |
+| LUT2     |   55 |                 LUT |
 | LUT4     |   49 |                 LUT |
 | LUT3     |   46 |                 LUT |
 | LUT5     |   37 |                 LUT |
