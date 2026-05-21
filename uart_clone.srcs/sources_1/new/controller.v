@@ -32,34 +32,24 @@ module controller # (
     data_i,
     we_i,
     cmd,
+    re_i,
+    ack_data_rd_i,
     data_len_o,
     finish_o,
-    error_o,
-    data_in_cnt,
-    ack_o
+    error_o
     );
     input [7:0] data_i;
     input we_i;
+    input re_i;
     input clk_i;
     input rst_i;
+    input ack_data_rd_i;
 
-    output reg finish_o, error_o, ack_o;
+    output reg finish_o, error_o;
     output reg [7:0] cmd, data_len_o;
     reg [7:0] data_mem [0:2**DATA_BIT_WIDTH-1];
-    output reg [(DATA_BIT_WIDTH + 6)-1:0] data_in_cnt;
-    wire interal_we_i = we_i & ~ack_o;
-
-    always @(posedge clk_i or posedge rst_i) begin
-        if (rst_i) begin
-            ack_o <= 1'b0;
-        end
-        else if (we_i) begin
-            ack_o = ~ack_o;
-        end
-        else begin
-            ack_o <= 1'b0;
-        end
-    end
+    reg [(DATA_BIT_WIDTH + 6)-1:0] data_in_cnt;
+    wire interal_we_i = we_i & ~finish_o & ~error_o; //& ~ack_o;
 
     //
     // data-in block
@@ -71,11 +61,13 @@ module controller # (
             error_o <= 0;
             finish_o <= 0;
         end
-        // else if (finish_o || error_o) begin
-        //     data_in_cnt <= 0;
-        //     cmd <= 0;
-        //     data_len_o <= 0;
-        // end
+        else if ((finish_o & ack_data_rd_i) || error_o) begin
+            data_in_cnt <= 0;
+            cmd <= 0;
+            data_len_o <= 0;
+            error_o <= 0;
+            finish_o <= 0;
+        end
         else if (interal_we_i) begin
             //
             // header phase

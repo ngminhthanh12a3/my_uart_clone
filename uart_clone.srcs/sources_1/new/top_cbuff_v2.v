@@ -205,7 +205,7 @@ module top_cbuff_v2(
             uart_rx_fifo_rd_en_i <= 1'b0;
             uart_rx_fifo_rd_cplt <= 1'b0;
         end
-        else if (~uart_rx_fifo_empty_o && ~uart_rx_fifo_rd_cplt && ~controller_inst_ack_o) begin
+        else if (~uart_rx_fifo_empty_o && ~uart_rx_fifo_rd_cplt && ~controller_inst_data_in_cplt) begin
             uart_rx_fifo_rd_en_i <= 1'b1;
             uart_rx_fifo_data_o <= uart_rx_fifo_rdata_o;
             uart_rx_fifo_rd_cplt <= 1'b1;
@@ -252,13 +252,13 @@ module top_cbuff_v2(
                 uart_tx_fifo_wr_en_i <= 1'b0;
                 uart_tx_fifo_wr_cplt <= 1'b0;
             end
-            else if (top_uart_rx_data_ready && ~uart_tx_fifo_wr_cplt) begin
-                uart_tx_fifo_wdata_i <= top_uart_rx_data;
-                uart_tx_fifo_wr_en_i <= 1'b1;
-                uart_tx_fifo_wr_cplt <= 1'b1;
+            else if (uart_tx_fifo_wr_cplt) begin
+                // uart_tx_fifo_wdata_i <= commander_inst_tx_mem_data_reg;
+                uart_tx_fifo_wr_en_i <= 1'b0;
+                uart_tx_fifo_wr_cplt <= 1'b0;
             end
-            else if (controller_inst_we_i && ~uart_tx_fifo_wr_cplt) begin
-                uart_tx_fifo_wdata_i <= controller_inst_data_i;
+            else if (commander_inst_tx_mem_rd_cplt && ~uart_tx_fifo_wr_cplt) begin
+                uart_tx_fifo_wdata_i <= commander_inst_tx_mem_data_reg;
                 uart_tx_fifo_wr_en_i <= 1'b1;
                 uart_tx_fifo_wr_cplt <= 1'b1;
             end
@@ -298,9 +298,9 @@ module top_cbuff_v2(
 
     reg [7:0] controller_inst_data_i;
     reg controller_inst_we_i, controller_inst_data_in_cplt;
-    wire controller_inst_finish_o, controller_inst_error_o, controller_inst_ack_o;
-    wire [(8 + 6)-1:0] controller_inst_data_in_cnt;
-
+    wire controller_inst_finish_o, controller_inst_error_o;
+    wire [7:0] controller_inst_cmd, controller_inst_data_len_i;
+    wire controller_inst_ack_data_rd_i;
     always @(posedge clk_i or posedge rst_i) begin
         if (rst_i) begin
             controller_inst_we_i <= 1'b0;
@@ -332,19 +332,54 @@ module top_cbuff_v2(
         end
     end
     
+    reg commander_inst_tx_mem_rd_e_i;
     controller controller_inst (
         .clk_i(clk_i),
         .rst_i(rst_i | btn[1]),
         .data_i(controller_inst_data_i),
         .we_i(controller_inst_we_i),
-        .cmd(),
-        .data_len_o(),
+        .cmd(controller_inst_cmd),
+        .data_len_o(controller_inst_data_len_i),
         .finish_o(controller_inst_finish_o),
         .error_o(controller_inst_error_o),
-        .data_in_cnt(controller_inst_data_in_cnt),
-        .ack_o(controller_inst_ack_o)
+        .ack_data_rd_i(controller_inst_ack_data_rd_i)
     );
 
-    assign led = {controller_inst_finish_o, controller_inst_error_o, uart_rx_fifo_wr_cplt_toggle, is_default_config_ok};
-    
+    wire commander_inst_tx_mem_empty_o;
+    wire [7:0] commander_inst_tx_mem_data_o;
+    commander commander_inst (
+        .clk_i(clk_i),
+        .rst_i(rst_i | btn[1]),
+        .exec_trigger_i(controller_inst_finish_o),
+        .cmd_i(controller_inst_cmd),
+        .data_len_i(controller_inst_data_len_i),
+        .data_rd_i(),
+        .tx_mem_rd_e_i(commander_inst_tx_mem_rd_e_i),
+        .data_rd_e_o(),
+        .busy_o(),
+        .ack_data_rd_o(controller_inst_ack_data_rd_i),
+        .tx_mem_empty_o(commander_inst_tx_mem_empty_o),
+        .tx_mem_data_o(commander_inst_tx_mem_data_o)
+    );
+
+    reg commander_inst_tx_mem_rd_cplt;
+    reg [7:0] commander_inst_tx_mem_data_reg;
+    always @(posedge clk_i or posedge rst_i) begin
+        if (rst_i) begin
+            commander_inst_tx_mem_rd_cplt <= 1'b0;
+            commander_inst_tx_mem_data_reg <= 8'b0;
+            commander_inst_tx_mem_rd_e_i <= 1'b0;
+        end
+        else if (~commander_inst_tx_mem_rd_cplt && ~commander_inst_tx_mem_empty_o) begin
+            commander_inst_tx_mem_rd_cplt <= 1'b1;
+            commander_inst_tx_mem_data_reg <= commander_inst_tx_mem_data_o;
+            commander_inst_tx_mem_rd_e_i <= 1'b1;
+        end
+        else if (commander_inst_tx_mem_rd_cplt) begin
+            commander_inst_tx_mem_rd_cplt <= 1'b0;
+            commander_inst_tx_mem_rd_e_i <= 1'b0;
+        end
+    end
+    assign led = {controller_inst_finish_o, controller_inst_cmd==8'h00, commander_inst_tx_mem_empty_o, is_default_config_ok};
+
 endmodule
