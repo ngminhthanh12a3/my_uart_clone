@@ -30,7 +30,7 @@ module top_cbuff_v2(
     sw
     );
     input CLK100MHZ, uart_txd_in;
-    input [0:0] btn;
+    input [1:0] btn;
     input [3:0] sw;
 
     output uart_rxd_out;
@@ -121,12 +121,12 @@ module top_cbuff_v2(
                 top_uart_rx_data_ready <= 1'b0;
                 // top_uart_addr_i <= `UART_USR;
             end
-            if (top_uart_addr_i == `UART_UDR && top_uart_wr_handle) begin
-                top_uart_addr_i <= `UART_USR;
-                top_uart_we_i <= 1'b0;
-            end
             else if (uart_inst_ack_o) begin
-                if (top_uart_addr_i == `UART_USR) begin
+                if (top_uart_addr_i == `UART_UDR && top_uart_wr_handle) begin
+                    top_uart_addr_i <= `UART_USR;
+                    top_uart_we_i <= 1'b0;
+                end
+                else if (top_uart_addr_i == `UART_USR) begin
                     top_uart_rx_status_toggle <= (~top_uart_rx_status_toggle & uart_inst_data_o[0]);
                     top_uart_rx_status <= uart_inst_data_o[0];
                     top_uart_tx_busy_status <= uart_inst_data_o[2];
@@ -143,7 +143,7 @@ module top_cbuff_v2(
                         top_uart_data_i <= {24'b0, uart_tx_fifo_rdata_o};
                     end
                 end
-                else if (top_uart_addr_i == `UART_UDR && (~top_uart_we_i) && top_uart_rx_status && ~top_uart_rx_data_ready) begin
+                else if ((top_uart_addr_i == `UART_UDR) && (~top_uart_we_i) && top_uart_rx_status && ~top_uart_rx_data_ready) begin
                     top_uart_rx_data = uart_inst_data_o[7:0];
                     top_uart_rx_status <= 1'b0;
                     top_uart_addr_i <= `UART_USR;
@@ -183,17 +183,17 @@ module top_cbuff_v2(
             uart_rx_fifo_wr_en_i <= 1'b0;
             uart_rx_fifo_wr_cplt <= 1'b0;
         end
-        else if (is_default_config_ok) begin
-            if (top_uart_rx_data_ready && ~uart_rx_fifo_wr_cplt) begin
-                uart_rx_fifo_wdata_i <= top_uart_rx_data;
-                uart_rx_fifo_wr_en_i <= 1'b1;
-                uart_rx_fifo_wr_cplt <= 1'b1;
-            end
-            else if (uart_rx_fifo_wr_cplt) begin
-                uart_rx_fifo_wr_en_i <= 1'b0;
-                uart_rx_fifo_wr_cplt <= 1'b0;
-            end
+        // else if (is_default_config_ok) begin
+        else if (top_uart_rx_data_ready && ~uart_rx_fifo_wr_cplt) begin
+            uart_rx_fifo_wdata_i <= top_uart_rx_data;
+            uart_rx_fifo_wr_en_i <= 1'b1;
+            uart_rx_fifo_wr_cplt <= 1'b1;
         end
+        else if (uart_rx_fifo_wr_cplt) begin
+            uart_rx_fifo_wr_en_i <= 1'b0;
+            uart_rx_fifo_wr_cplt <= 1'b0;
+        end
+        // end
     end
 
     //
@@ -205,7 +205,7 @@ module top_cbuff_v2(
             uart_rx_fifo_rd_en_i <= 1'b0;
             uart_rx_fifo_rd_cplt <= 1'b0;
         end
-        else if (uart_rx_fifo_empty_o && ~uart_rx_fifo_wr_en_i && ~uart_rx_fifo_rd_cplt) begin
+        else if (~uart_rx_fifo_empty_o && ~uart_rx_fifo_rd_cplt && ~controller_inst_ack_o) begin
             uart_rx_fifo_rd_en_i <= 1'b1;
             uart_rx_fifo_data_o <= uart_rx_fifo_rdata_o;
             uart_rx_fifo_rd_cplt <= 1'b1;
@@ -248,25 +248,30 @@ module top_cbuff_v2(
             uart_tx_fifo_wr_cplt <= 1'b0;
         end
         else if (is_default_config_ok) begin
-            if (top_uart_rx_data_ready && ~uart_tx_fifo_wr_cplt) begin
+            if (uart_tx_fifo_wr_cplt) begin
+                uart_tx_fifo_wr_en_i <= 1'b0;
+                uart_tx_fifo_wr_cplt <= 1'b0;
+            end
+            else if (top_uart_rx_data_ready && ~uart_tx_fifo_wr_cplt) begin
                 uart_tx_fifo_wdata_i <= top_uart_rx_data;
                 uart_tx_fifo_wr_en_i <= 1'b1;
                 uart_tx_fifo_wr_cplt <= 1'b1;
             end
-            else if (uart_tx_fifo_wr_cplt) begin
-                uart_tx_fifo_wr_en_i <= 1'b0;
-                uart_tx_fifo_wr_cplt <= 1'b0;
+            else if (controller_inst_we_i && ~uart_tx_fifo_wr_cplt) begin
+                uart_tx_fifo_wdata_i <= controller_inst_data_i;
+                uart_tx_fifo_wr_en_i <= 1'b1;
+                uart_tx_fifo_wr_cplt <= 1'b1;
             end
         end
     end
 
     reg uart_rx_fifo_wr_cplt_toggle;
-    always @(posedge uart_tx_fifo_wr_cplt or posedge rst_i) begin
+    always @(posedge clk_i or posedge rst_i) begin
         if (rst_i) begin
             uart_rx_fifo_wr_cplt_toggle <= 1'b0;
         end
-        else begin
-            uart_rx_fifo_wr_cplt_toggle <= uart_rx_fifo_wr_cplt_toggle + 1'b1;
+        else if (top_uart_rx_data_ready) begin
+            uart_rx_fifo_wr_cplt_toggle <= ~uart_rx_fifo_wr_cplt_toggle;
         end
     end
 
@@ -289,15 +294,57 @@ module top_cbuff_v2(
     end
 
     //
-    // transmit fifo data
-    // always @(posedge clk_i or posedge rst_i) begin
-    //     if (rst_i) begin
-            
-    //     end
-    //     else if (uart_tx_fifo_rd_cplt) begin
-            
-    //     end
-    // end
+    // 
 
-    assign led = {top_uart_wr_handle, uart_rx_fifo_wr_cplt_toggle, top_uart_we_i, is_default_config_ok};
+    reg [7:0] controller_inst_data_i;
+    reg controller_inst_we_i, controller_inst_data_in_cplt;
+    wire controller_inst_finish_o, controller_inst_error_o, controller_inst_ack_o;
+    wire [(8 + 6)-1:0] controller_inst_data_in_cnt;
+
+    always @(posedge clk_i or posedge rst_i) begin
+        if (rst_i) begin
+            controller_inst_we_i <= 1'b0;
+            controller_inst_data_i <= 8'b0;
+            controller_inst_data_in_cplt <= 1'b0;
+        end
+        else if (controller_inst_data_in_cplt) begin
+            // if (controller_inst_ack_o)
+                controller_inst_we_i <= 1'b0;
+            
+            // if (~uart_rx_fifo_rd_cplt) begin
+                controller_inst_data_in_cplt <= 1'b0;
+            // end 
+        end
+        else if (uart_rx_fifo_rd_cplt && ~controller_inst_data_in_cplt) begin
+            controller_inst_we_i <= 1'b1;
+            controller_inst_data_i <= uart_rx_fifo_data_o;
+            controller_inst_data_in_cplt <= 1'b1;
+        end
+    end
+
+    reg controller_inst_we_i_toggle;
+    always @(posedge controller_inst_we_i or posedge rst_i) begin
+        if (rst_i) begin
+            controller_inst_we_i_toggle <= 1'b0;
+        end
+        else begin
+            controller_inst_we_i_toggle <= ~controller_inst_we_i_toggle;
+        end
+    end
+    
+    controller controller_inst (
+        .clk_i(clk_i),
+        .rst_i(rst_i | btn[1]),
+        .data_i(controller_inst_data_i),
+        .we_i(controller_inst_we_i),
+        .cmd(),
+        .data_len_o(),
+        .finish_o(controller_inst_finish_o),
+        .error_o(controller_inst_error_o),
+        .data_in_cnt(controller_inst_data_in_cnt),
+        .ack_o(controller_inst_ack_o)
+    );
+
+    assign led = {controller_inst_finish_o, controller_inst_error_o, uart_rx_fifo_wr_cplt_toggle, is_default_config_ok};
+    
 endmodule
